@@ -6,8 +6,11 @@ const PORT = process.env.PORT
 console.log(PORT)
 const app = express()
 
+
 // DEPENDENCIES
 const methodOverride = require('method-override')
+const mongoose = require('mongoose')
+
 
 // MIDDLEWARE
 app.set('views', __dirname + '/views')
@@ -34,6 +37,9 @@ app.use('/breads', breadsController)
 app.get('*', (req, res) => {
     res.send('404')
 })
+
+
+mongoose.connect(process.env.MONGO_URI)
 
 
 // Listen
