@@ -1,6 +1,8 @@
 const express = require('express');
 const breads = express.Router();
 const Bread = require('../models/bread.js')
+
+
 // INDEX
 breads.get('/', (req, res) => {
     Bread.find()
@@ -18,17 +20,19 @@ breads.get('/new', (req, res) => {
     res.render('new')
 })
 
+
+
 // SHOW
 breads.get('/:id', (req, res) => {
     Bread.findById(req.params.id)
         .then(foundBread => {
+            const bakedBy = foundBread.getBakedBy()
+            console.log(bakedBy)
             res.render('show', {
                 bread: foundBread
             })
         })
-        .catch(err => {
-            res.send('404')
-        })
+        
 })
 
 
@@ -44,13 +48,46 @@ breads.post('/', (req, res) => {
         req.body.hasGluten = false
     }
     Bread.create(req.body)
-    res.redirect('/breads')
+        .then(() => {
+            res.redirect('/breads')
+        })
+        .catch(err => {
+            res.status(500).send('Error creating bread')
+        })
 })
 
+
 // DELETE
-breads.delete('/:indexArray', (req, res) => {
-    Bread.splice(req.params.indexArray, 1)
-    res.status(303).redirect('/breads')
+breads.delete('/:id', (req, res) => {
+    Bread.findOneAndDelete(req.params.id)
+        .then(deleteBread => {
+            res.status(303).redirect('/breads')
+        })
+    
+})
+
+// Update 
+breads.put('/:id/edit', (req, res) => {
+    if (req.body.hasGluten === 'on') {
+        req.body.hasGluten = true
+    } else {
+        req.body.hasGluten = false
+    }
+    Bread.findByIdAndUpdate(req.params.id, req.body, {new: true})
+        .then(updatedBread => {
+            console.log(updatedBread)
+            res.redirect(`/breads/${req.params.id}`)
+        })
+})
+
+// EDIT
+breads.get('/:id/edit', (req, res) => {
+    Bread.findById(req.params.id)
+        .then(foundBread => {
+            res.render('edit', {
+                bread: foundBread
+            })
+        })
 })
 
 
