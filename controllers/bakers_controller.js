@@ -22,11 +22,24 @@ baker.get('/', (req, res) => {
 // Show: 
 baker.get('/:id', (req, res) => {
     Baker.findById(req.params.id)
-        .populate('breads')
+        .populate({
+            path: 'breads',
+            options: { limit: 5 }
+        })
         .then(foundBaker => {
             res.render('bakerShow', {
                 baker: foundBaker
             })
+        })
+})
+
+
+
+// delete
+baker.delete('/:id', (req, res) => {
+    Baker.findByIdAndDelete(req.params.id)
+        .then(deletedBaker => {
+            res.status(303).redirect('/breads')
         })
 })
 
